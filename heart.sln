@@ -1,23 +1,37 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.6.33815.320
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "heart", "heart\heart.pyproj", "{9F694FC7-1C14-439E-AD34-AD1A1FEA1D72}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9F694FC7-1C14-439E-AD34-AD1A1FEA1D72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F694FC7-1C14-439E-AD34-AD1A1FEA1D72}.Release|Any CPU.ActiveCfg = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {651B34FD-E249-4F0D-A0B6-B8E3A33E76F9}
-	EndGlobalSection
-EndGlobal
+import turtle
+wn=turtle.Screen()
+wn.setup(width=500,height=500)
+red=turtle.Turtle()
+def curveb():
+    for i in range(200):
+        red.right(1)
+        red.forward(1.1)
+def curvea():
+    for i in range(200):
+        red.right(1)
+        red.forward(0.9)
+def hearta():
+    red.fillcolor('red')
+    red.begin_fill()
+    red.left(140)
+    red.forward(113)
+    curvea()
+    red.left(120)
+    curvea()
+    red.forward(112)
+    red.end_fill()
+def heartb():
+    red.fillcolor('black')
+    red.begin_fill()
+    red.left(140)
+    red.forward(113)
+    curveb()
+    red.left(120)
+    curveb()
+    red.forward(112)
+    red.end_fill()
+    red.left(140)
+heartb()
+hearta()
+red.ht()
+turtle.done()
