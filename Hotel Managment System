@@ -1,0 +1,346 @@
+// Online C compiler to run C program online
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <time.h>
+
+#define MAX_ROOMS_PER_TYPE 10
+#define NUM_ROOM_TYPES 3
+
+// Enumeration for room types
+typedef enum {
+    SINGLE_BEDROOM,
+    DOUBLE_BEDROOM,
+    SUITE
+} RoomType;
+
+// Enumeration for view types
+typedef enum {
+    NO_VIEW,
+    SEA_VIEW,
+    GARDEN_VIEW,
+    CITY_VIEW
+} ViewType;
+
+// Structure to represent a hotel room
+typedef struct {
+    int roomNumber;
+    RoomType type;
+    bool isAvailable;
+    char guestName[50];
+    char gender[10];
+    int age;
+    char phoneNumber[15];
+    ViewType viewType;
+    bool hasAC;
+    bool hasHotWater;
+} Room;
+
+// Function prototypes
+void initializeRooms(Room rooms[], int numRooms);
+void displayRooms(Room rooms[], int numRooms, RoomType type);
+int bookRoom(Room rooms[], int numRooms, RoomType type, char guestName[], char gender[], int age, char phoneNumber[], ViewType viewType, bool hasAC, bool hasHotWater);
+void checkIn(Room rooms[], int numRooms);
+void checkOut(Room rooms[], int numRooms);
+double calculateBill(ViewType viewType, bool hasAC, bool hasHotWater, int numDays, int numPersons);
+
+int main() {
+    Room rooms[NUM_ROOM_TYPES * MAX_ROOMS_PER_TYPE];
+    initializeRooms(rooms, NUM_ROOM_TYPES * MAX_ROOMS_PER_TYPE);
+
+    int choice;
+    RoomType selectedType;
+
+    do {
+        printf("\nHotel Reservation System\n");
+        printf("1. Display Rooms\n");
+        printf("2. Book a Room\n");
+        printf("3. Check-In\n");
+        printf("4. Check-Out\n");
+        printf("0. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter room type (0: Single Bedroom, 1: Double Bedroom, 2: Suite): ");
+                scanf("%d", (int*)&selectedType);
+                displayRooms(rooms, NUM_ROOM_TYPES * MAX_ROOMS_PER_TYPE, selectedType);
+                break;
+            case 2:
+                printf("Enter room type (0: Single Room, 1: Double Room, 2: Suite): ");
+                scanf("%d", (int*)&selectedType);
+
+                char guestName[50];
+                char gender[10];
+                int age;
+                char phoneNumber[15];
+
+                printf("Enter guest name: ");
+                scanf("%s", guestName);
+
+                printf("Enter guest age: ");
+                scanf("%d", &age);
+
+                printf("Enter guest phone number: ");
+                scanf("%s", phoneNumber);
+
+                int viewType;
+                printf("Enter view type (0: No View, 1: Sea View, 2: Garden View, 3: City View): ");
+                scanf("%d", &viewType);
+
+                bool hasAC;
+                printf("Do you prefer an AC room? (0: No, 1: Yes): ");
+              //  scanf("%d", &hasAC);
+                scanf("%d", (int*)&hasAC);
+
+                bool hasHotWater;
+                printf("Do you need hot water? (0: No, 1: Yes): ");
+             //   scanf("%d", &hasHotWater);
+                scanf("%d", (int*)&hasHotWater);
+                int bookedRoom = bookRoom(rooms, NUM_ROOM_TYPES * MAX_ROOMS_PER_TYPE, selectedType,
+                    guestName, gender, age,
+                    phoneNumber,
+                    viewType,
+                    hasAC,
+                    hasHotWater);
+                if (bookedRoom != -1) {
+                    printf("Room booked successfully. Room number: %d\n", bookedRoom);
+
+                    // Calculate bill details
+
+                } else {
+                    printf("No available rooms.\n");
+                }
+                break;
+            case 3:
+                checkIn(rooms, NUM_ROOM_TYPES * MAX_ROOMS_PER_TYPE);
+                break;
+            case 4:
+                checkOut(rooms, NUM_ROOM_TYPES * MAX_ROOMS_PER_TYPE);
+                break;
+            case 0:
+                printf("Exiting Hotel.\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+
+    } while (choice != 0);
+
+    return 0;
+}
+
+// Function to initialize rooms
+void initializeRooms(Room rooms[], int numRooms) {
+    for (int i = 0; i < numRooms; i++) {
+        rooms[i].roomNumber = i + 1;
+        rooms[i].type = (RoomType)(i / MAX_ROOMS_PER_TYPE); // Assign room type based on position
+        rooms[i].isAvailable = true;
+        rooms[i].guestName[0] = '\0';
+        rooms[i].gender[0] = '\0';
+        rooms[i].age = 0;
+        rooms[i].phoneNumber[0] = '\0';
+    }
+}
+
+// Function to display the status of rooms for a specific type
+void displayRooms(Room rooms[], int numRooms, RoomType type) {
+    printf("Room\tStatus\tGuest Name\n");
+    for (int i = 0; i < numRooms; i++) {
+        if (rooms[i].type == type) {
+            printf("%d\t%s\t%s\n", rooms[i].roomNumber,
+                   rooms[i].isAvailable ? "Available" : "Occupied",
+                   rooms[i].guestName);
+        }
+    }
+}
+int bookRoom(Room rooms[], int numRooms, RoomType type, char guestName[], char gender[], int age, char phoneNumber[], ViewType viewType, bool hasAC, bool hasHotWater) {
+    int roomChoice;
+    printf("Select a room within the chosen type (%s):\n",
+           type == SINGLE_BEDROOM ? "Single Bedroom" :
+           type == DOUBLE_BEDROOM ? "Double Bedroom" : "Suite");
+
+    // Display available rooms within the selected type
+    displayRooms(rooms, numRooms, type);
+
+    printf("Enter the room number you want to book: ");
+    scanf("%d", &roomChoice);
+
+    // Check room availability and book if available
+    for (int i = type * MAX_ROOMS_PER_TYPE; i < (type + 1) * MAX_ROOMS_PER_TYPE; i++) {
+        if (rooms[i].roomNumber == roomChoice && rooms[i].isAvailable) {
+            rooms[i].isAvailable = false;
+            strcpy(rooms[i].guestName, guestName);
+            strcpy(rooms[i].phoneNumber, phoneNumber);
+            rooms[i].viewType = viewType;
+            rooms[i].hasAC = hasAC;  // Assign the collected bool value directly
+            rooms[i].hasHotWater = hasHotWater;  // Assign the collected bool value directly
+            time_t currentTime;
+            time(&currentTime);
+            struct tm* localTime = localtime(&currentTime);
+            printf("Your room is booked at: %s", asctime(localTime));
+            return rooms[i].roomNumber;
+        }
+    }
+    
+    printf("The chosen room is not available or does not exist within the selected type.\n");
+    return -1; // No available rooms or invalid room number
+}
+
+
+// Function to check-in a guest to the booked room
+void checkIn(Room rooms[], int numRooms) {
+    char guestName[50];
+    char phoneNumber[15];
+
+    printf("Enter your registered phone number: ");
+    scanf("%s", phoneNumber);
+    
+    printf("Enter your name: ");
+    scanf("%s", guestName);
+
+    for (int i = 0; i < numRooms; i++) {
+        if (!rooms[i].isAvailable &&
+            strcmp(rooms[i].guestName, guestName) == 0 &&
+            strcmp(rooms[i].phoneNumber, phoneNumber) == 0) {
+
+            printf("Check-in successful. Room number: %d\n", rooms[i].roomNumber);
+
+            time_t currentTime;
+            time(&currentTime);
+            struct tm *localTime = localtime(&currentTime);
+            printf("You are checked in at: %s", asctime(localTime));
+            
+            // Show booked room details
+            printf("Room details:\n");
+            printf("Room Number: %d\n", rooms[i].roomNumber);
+            printf("Type: %d\n", rooms[i].type);
+            printf("View Type: %d\n", rooms[i].viewType);
+            printf("AC: %s\n", rooms[i].hasAC ? "Yes" : "No");
+            printf("Hot Water: %s\n", rooms[i].hasHotWater ? "Yes" : "No");
+
+            return;
+        }
+    }
+
+    printf("No booked room found for the provided information.\n");
+    printf("Please make sure to book a room first or provide correct registration details.\n");
+}
+
+// Function to calculate the bill
+// Function to calculate the bill based on different specifications
+double calculateBill(ViewType viewType, bool hasAC, bool hasHotWater, int numDays, int numPersons) {
+    double basePrice = 300.0; // Base price per day
+
+    double viewPrice = 0.0;
+    switch (viewType) {
+        case SEA_VIEW:
+            viewPrice = 130.0;
+            break;
+        case GARDEN_VIEW:
+            viewPrice = 120.0;
+            break;
+        case CITY_VIEW:
+            viewPrice = 110.0;
+            break;
+        case NO_VIEW:
+        default:
+            break;
+    }
+
+    double acPrice = hasAC ? 20.0 : 0.0; // AC charges
+    double hotWaterPrice = hasHotWater ? 10.0 : 0.0; // Hot water charges
+
+    double totalPrice = basePrice + viewPrice + acPrice + hotWaterPrice;
+
+    // Multiply by number of days and persons
+    return totalPrice * numDays * numPersons;
+}
+
+// Function to check-out a guest with feedback
+void checkOut(Room rooms[], int numRooms) {
+    char guestName[50];
+    char phoneNumber[15];
+    int numDays;
+    int numPersons;
+
+    printf("Enter your registered phone number: ");
+    scanf("%s", phoneNumber);
+    
+    printf("Enter your name: ");
+    scanf("%s", guestName);
+
+    for (int i = 0; i < numRooms; i++) {
+        if (!rooms[i].isAvailable &&
+            strcmp(rooms[i].guestName, guestName) == 0 &&
+            strcmp(rooms[i].phoneNumber, phoneNumber) == 0) {
+            
+            printf("Enter number of days stayed: ");
+            scanf("%d", &numDays);
+            printf("Enter number of persons accommodated: ");
+            scanf("%d", &numPersons);
+
+            double basePricePerDay = 100.0; // Base price per day in INR
+             double totalAmount = calculateBill(rooms[i].viewType, rooms[i].hasAC, rooms[i].hasHotWater, numDays, numPersons);
+             
+            printf("\nBilling Details:\n");
+            printf("Base Price (Per Day): ₹%.2f\n", basePricePerDay);
+
+            // Display charges for different specifications
+            // Calculate AC charges and display
+            double acCharges = rooms[i].hasAC ? 20.0 * numDays * numPersons : 0.0;
+            printf("AC Charges: ₹%.2f (%d days for %d person(s))\n", acCharges, numDays, numPersons);
+
+            // Calculate hot water charges and display
+            double hotWaterCharges = rooms[i].hasHotWater ? 10.0 * numDays * numPersons : 0.0;
+            printf("Hot Water Charges: ₹%.2f (%d days for %d person(s))\n", hotWaterCharges, numDays, numPersons);
+
+            // Calculate the total amount including all charges
+            printf("\nTotal Amount to be paid: ₹%.2f\n", totalAmount); // Display total amount in INR
+
+           /* double amountToPay = calculateBill(rooms[i].viewType, rooms[i].hasAC, rooms[i].hasHotWater, numDays, numPersons);
+
+            printf("Amount to be paid: ₹%.2f\n", amountToPay);*/
+
+            printf("\nPlease select a payment option:\n");
+            printf("1. Cash\n");
+            printf("2. Net Banking\n");
+            printf("3. Debit Card\n");
+            printf("4. Credit Card\n");
+
+            int paymentOption;
+            printf("\nEnter your choice: ");
+            scanf("%d", &paymentOption);
+
+            switch (paymentOption) {
+                // Process payment based on selected option
+                // Add your payment handling logic here
+            }
+
+            printf("Check-out successful.\n");
+
+            int feedback;
+            printf("Please provide feedback (1: Excellent, 2: Good, 3: Average, 4: Poor): ");
+            scanf("%d", &feedback);
+            // Save feedback or perform any desired actions based on feedback
+            switch (feedback) {
+                // Handle feedback cases
+            }
+
+            rooms[i].isAvailable = true;
+            rooms[i].guestName[0] = '\0';
+            rooms[i].phoneNumber[0] = '\0';
+
+            time_t currentTime;
+            time(&currentTime);
+            struct tm *localTime = localtime(&currentTime);
+            printf("You are checked out at: %s", asctime(localTime));
+
+            return;
+        }
+    }
+
+    printf("No booked room found for the provided information.\n");
+    printf("Please make sure to provide correct registration details.\n");
+}
